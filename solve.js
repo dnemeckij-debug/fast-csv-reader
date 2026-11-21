@@ -1,3 +1,4 @@
+
 // Fast csv-reader 1.0.0 compatible implementation; no external dependencies.
 export function run(input) {
   const text = String(input.text), n = text.length, header = input.header === true;
@@ -75,21 +76,20 @@ export function run(input) {
         }
       }
       // Unquoted, including unterminated-quote fallback.
-      const pieces = [value];
       let start = pos;
+      let prefix = value;
       while (pos < n) {
         c = text.charCodeAt(pos);
         if (c === 44 || c === 10 || c === 13) {
           if (c === 13 && text.charCodeAt(pos+1) !== 10) {
-            if(pos>start) pieces.push(text.slice(start,pos));
+            if (pos > start) prefix += text.slice(start,pos);
             errors.push({code:'stray_cr',line:recordLine,row});pos++;start=pos;continue;
           }
           break;
         }
         pos++;
       }
-      if(pos>start) pieces.push(text.slice(start,pos));
-      value=pieces.join('');
+      value = pos > start ? prefix + text.slice(start,pos) : prefix;
       c=text.charCodeAt(pos);
       if(c===44){pos++;ended=1;}else if(c===10){pos++;line++;ended=0;}else if(c===13 && text.charCodeAt(pos+1)===10){pos+=2;line++;ended=0;}else ended=0;
       fields.push(value);
